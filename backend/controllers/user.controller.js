@@ -1,8 +1,8 @@
 import userModel from "../models/user.model.js";
 import { validationResult } from "express-validator";
 import createUser from "../services/user.service.js";
-import {asyncHandler} from "../utils/asyncHandler.js";
-import blacklistTokenModel from "../models/blacklistToken.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import blacklistTokenModel from "../models/blacklistToken.model.js";
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
@@ -30,7 +30,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
   const token = user.generateAuthToken();
 
   res.status(201).json({ user, token });
-})
+});
 
 const loginUser = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
@@ -42,34 +42,34 @@ const loginUser = asyncHandler(async (req, res, next) => {
 
   const user = await userModel.findOne({ email }).select("+password");
 
-  if(!user){
+  if (!user) {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
   const isPasswordCorrect = await user.comparePassword(password);
 
-  if(!isPasswordCorrect){
+  if (!isPasswordCorrect) {
     return res.status(401).json({ message: "Invalid email or password" });
   }
 
   const token = user.generateAuthToken();
 
-  res.cookie('token', token)
+  res.cookie("token", token);
 
   res.status(200).json({ user, token });
-})
+});
 
 const getUserProfile = asyncHandler(async (req, res, next) => {
   res.status(200).json(req.user);
-})
+});
 
-const logoutUser = asyncHandler(async (req,res,next)=>{
-  res.clearCookie('token')
+const logoutUser = asyncHandler(async (req, res, next) => {
+  res.clearCookie("token");
   const token = req.cookies.token || req.headers.authorization.split(" ")[1];
 
-  await blacklistTokenModel.create({token})
+  await blacklistTokenModel.create({ token });
 
-  res.status(200).json({message: 'Logged out'});
-})
+  res.status(200).json({ message: "Logged out" });
+});
 
 export { registerUser, loginUser, getUserProfile, logoutUser };
