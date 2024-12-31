@@ -2,6 +2,7 @@ import userModel from "../models/user.model.js";
 import { validationResult } from "express-validator";
 import createUser from "../services/user.service.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
+import blacklistTokenModel from "../models/blacklistToken.js";
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
@@ -53,7 +54,22 @@ const loginUser = asyncHandler(async (req, res, next) => {
 
   const token = user.generateAuthToken();
 
+  res.cookie('token', token)
+
   res.status(200).json({ user, token });
 })
 
-export { registerUser, loginUser };
+const getUserProfile = asyncHandler(async (req, res, next) => {
+  res.status(200).json(req.user);
+})
+
+const logoutUser = asyncHandler(async (req,res,next)=>{
+  res.clearCookie('token')
+  const token = req.cookies.token || req.headers.authorization.split(" ")[1];
+
+  await blacklistTokenModel.create({token})
+
+  res.status(200).json({message: 'Logged out'});
+})
+
+export { registerUser, loginUser, getUserProfile, logoutUser };
