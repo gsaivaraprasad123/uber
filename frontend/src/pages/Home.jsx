@@ -6,7 +6,7 @@ import { LogIn } from "lucide-react";
 const Home = () => {
   return (
     <div>
-      <div className="bg-cover bg-center bg-[url(https://i.pinimg.com/736x/87/37/e8/8737e8c8294d5985d25f87fa6eef8c9b.jpg)] h-screen flex  justify-between flex-col pt-8 w-full bg-red-400">
+      <div className="bg-cover bg-center bg-[url(https://i.pinimg.com/736x/87/37/e8/8737e8c8294d5985d25f87fa6eef8c9b.jpg)] h-screen flex  justify-between flex-col pt-8 w-full">
         <img
           className="w-16 ml-8"
           src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
