@@ -1,6 +1,8 @@
 import { ArrowRight, UsersRound } from "lucide-react";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { UserDataContext } from "../context/UserContext";
 
 const UserSignup = () => {
   const [firstName, setFirstName] = useState("");
@@ -9,17 +11,32 @@ const UserSignup = () => {
   const [password, setPassword] = useState("");
   const [userData, setUserData] = useState({});
 
-  const submitHandler = (e) => {
+  const navigate = useNavigate();
+
+  const { user, setUser } = React.useContext(UserDataContext);
+
+  const submitHandler = async (e) => {
     e.preventDefault();
-    setUserData({
-      fullName: {
-        firstName: firstName,
-        lastName: lastName,
+    const newUser = {
+      fullname: {
+        firstname: firstName,
+        lastname: lastName,
       },
       email: email,
       password: password,
-    });
-    console.log(userData);
+    };
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/users/register`,
+      newUser
+    );
+    if (response.status === 201) {
+      const data = response.data;
+      setUser(data.user);
+      localStorage.setItem("token", data.token);
+      navigate("/home");
+    }
+    console.log(newUser);
     setEmail("");
     setPassword("");
     setFirstName("");
@@ -88,7 +105,7 @@ const UserSignup = () => {
             }}
           />
           <button className="bg-[#111] text-white font-medium mb-7 rounded-md px-4 py-2 w-full placeholder:text-base text-lg flex items-center justify-center">
-            Sign up
+            Create Account
             <ArrowRight className="ml-2" />
           </button>
           <p className="text-center mb-2">

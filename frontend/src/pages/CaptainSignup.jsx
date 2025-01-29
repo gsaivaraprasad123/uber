@@ -1,8 +1,12 @@
 import { ArrowRight } from "lucide-react";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { CaptainDataContext } from "../context/CaptainContext";
+import axios from "axios";
 
 const CaptainSignup = () => {
+  const navigate = useNavigate();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,23 +17,47 @@ const CaptainSignup = () => {
   const [vehiclePlate, setVehiclePlate] = useState("");
   const [vehicleCapacity, setVehicleCapacity] = useState("");
 
-  const [userData, setUserData] = useState({});
+  const { captain, setCaptain } = React.useContext(CaptainDataContext);
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    setUserData({
-      fullName: {
-        firstName: firstName,
+    const captainData = {
+      fullname: {
+        firstname: firstName,
         lastName: lastName,
       },
       email: email,
       password: password,
-    });
-    console.log(userData);
+      vehicle: {
+        color: vehicleColor,
+        plate: vehiclePlate,
+        capacity: vehicleCapacity,
+        vehicleType: vehicleType,
+      },
+    };
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/captains/register`,
+      captainData
+    );
+
+    if (response.status === 201) {
+      const data = response.data;
+      setCaptain(data.user);
+      localStorage.setItem("captain-token", data.token);
+      navigate("/captain-home");
+    }
+
+    console.log(captainData);
     setEmail("");
     setPassword("");
     setFirstName("");
     setLastName("");
+    setVehicleColor("");
+    setVehiclePlate("");
+    setVehicleCapacity("");
+    setVehicleType("");
+    setCaptain("");
   };
 
   return (
@@ -130,7 +158,7 @@ const CaptainSignup = () => {
             />
             <select
               required
-              className="bg-gray-200 w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base"
+              className="bg-gray-200 w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-xs"
               value={vehicleType}
               onChange={(e) => {
                 setVehicleType(e.target.value);
@@ -147,7 +175,7 @@ const CaptainSignup = () => {
           </div>
 
           <button className="bg-[#111] text-white font-medium mb-7 rounded-md px-4 py-2 w-full placeholder:text-base text-lg flex items-center justify-center">
-            Sign up
+            Create Captain Account
             <ArrowRight className="ml-2" />
           </button>
           <p className="text-center mb-2">
